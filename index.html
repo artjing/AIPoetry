@@ -1,0 +1,152 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=EB+Garamond" rel="stylesheet">
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: green;
+      max-width: 30em;
+    }
+
+    select,
+    button {
+      font-size: 100%;
+      max-width: 15em;
+    }
+
+    #title {
+      font-size: 120%;
+      font-weight: bold;
+    }
+
+    #about>p {
+      margin: 0.5em 0;
+    }
+
+    .section {
+      border: 1px solid #ccc;
+      margin: 0.5em 0;
+      padding: 0.5em;
+      border-radius: 0.5em;
+      font-family: 'EB Garamond', serif;
+      background-color: rgb(245, 245, 245);
+    }
+
+    #poem {
+      max-height: 7em;
+      overflow: scroll;
+    }
+  </style>
+</head>
+
+<body>
+  <p>
+    Neural poetry given a <b>style</b> and <b>subject</b>.
+  </p>
+
+  <select id="poems"></select> <button onclick="randomSelect(selectPoems); update();">random</button>
+  <div id="poem" class="section">Loading...</div>
+
+  <select id="seeds"></select> <button onclick="randomSelect(selectSeeds); update();">random</button> <button
+    onclick="regenerate()">regenerate</button>
+  <p id="generated" class="section">Loading...</p>
+
+  <p>
+    <a href="https://github.com/openai/gpt-2">GPT-2</a> with <a href="https://www.poetryfoundation.org/">top-40
+      poets</a>, and a few <a href="#" onclick="document.querySelector('#thanks').style.display = 'block'">donated
+      favorites</a>. <a href="https://github.com/kylemcdonald/gpt-2-poetry">Code</a> by <a
+      href="https://twitter.com/kcimc/">@kcimc</a>
+  </p>
+
+  <p id='thanks' style='display:none'>
+    Thanks!
+    <a href="https://twitter.com/2bbb">@2bbb</a>
+    <a href="https://twitter.com/Savvas">@Savvas</a>
+    <a href="https://twitter.com/benpawle">@benpawle</a>
+    <a href="https://twitter.com/huit_nat">@huit_nat</a>
+    <a href="https://twitter.com/livingtech">@livingtech</a>
+    <a href="https://twitter.com/matthewissound">@matthewissound</a>
+    <a href="https://twitter.com/rbvea">@rbvea</a>
+    <a href="https://twitter.com/winterblooms">@winterblooms</a>
+  </p>
+
+  <script>
+    let index = 0;
+
+    let selectPoems = document.querySelector('#poems');
+    let selectSeeds = document.querySelector('#seeds');
+    let poemElt = document.querySelector("#poem");
+    let generatedElt = document.querySelector("#generated");
+
+    function convertNewlines(text) {
+      return text.split('\n').join('<br/>').split('<|endoftext|>')[0];
+    }
+
+    function update() {
+      let key = selectPoems.value;
+      let poem = poems[key];
+      // console.log(poem.url);
+      poemElt.innerHTML = poem.poem.join('<br/>');
+
+      let seed = selectSeeds.value;
+      generatedElt.innerHTML = convertNewlines(generated[seed][key][index]) + '...';
+    }
+
+    function randomSelect(elt) {
+      let n = elt.options.length;
+      let i = Math.floor(Math.random() * n);
+      elt.value = elt.options[i].value;
+      regenerate();
+    }
+
+    function regenerate() {
+      index = (index + 1) % 10;
+      update();
+    }
+
+    Promise.all([
+      fetch('poems.json').then(e => e.json()),
+      fetch('generated.json').then(e => e.json())
+    ])
+      .then(files => {
+        poems = files[0];
+        generated = files[1];
+
+        let sortable = [];
+        for (key in poems) {
+          let poem = poems[key];
+          sortable.push([
+            poem['author'] + ' > ' + poem['title'],
+            key
+          ])
+        }
+        sortable.sort(function (a, b) {
+          return a[0].toLowerCase().localeCompare(b[0].toLowerCase());
+        });
+        sortable.forEach(item => {
+          let opt = document.createElement("option");
+          opt.text = item[0];
+          opt.value = item[1];
+          selectPoems.add(opt);
+        })
+
+        for (key in generated) {
+          let opt = document.createElement("option");
+          opt.text = key;
+          opt.value = key;
+          selectSeeds.add(opt);
+        }
+
+        randomSelect(selectPoems);
+        randomSelect(selectSeeds);
+
+        selectSeeds.onchange = update;
+        selectPoems.onchange = update;
+        update();
+      })
+  </script>
+</body>
+
+</html>
