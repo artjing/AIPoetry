@@ -49,8 +49,8 @@
   <select id="poems"></select> <button onclick="randomSelect(selectPoems); update();">random</button>
   <div id="poem" class="section">Loading...</div>
 
-  <select id="seeds"></select> <button onclick="randomSelect(selectSeeds); update();">random</button> <button
-    onclick="regenerate()"></button>
+  <select id="seeds"></select> <button onclick="randomSelect(selectSeeds); update();">random</button><button
+    onclick="regenerate()">generate</button>
   <p id="generated" class="section">Loading...</p>
 
   <p id='jing' style='display:none'>
@@ -87,7 +87,7 @@
     }
 
     function regenerate() {
-      index = index% 10;
+      index = (index + 1) % 10;
       update();
     }
 
