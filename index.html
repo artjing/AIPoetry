@@ -4,8 +4,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=EB+Garamond" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
-  <script src="https://unpkg.com/ml5@0.5.0/dist/ml5.min.js"></script>
+  <script src="lib/ml5.min.js"></script>
   <script src="lib/p5.speech.js"></script>
+  <script src="lib/tf.min.js"></script>
+  <script src="lib/teachablemachine-pose.min.js"></script>
+  <script src="lib/poseTrain.js"></script>  
   <style>
     body {
       font-family: sans-serif;
@@ -125,7 +128,7 @@
   		const modelInfor = {
   			model: 'model/model.json',
     		metadata: 'model/model_meta.json',
-    		weights: 'model/weights.bin',
+    		weights: 'model/model.weights.bin',
   		}
   		brain.load(modelInfor, brainLoaded);
 
