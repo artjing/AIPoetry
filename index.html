@@ -6,8 +6,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
   <script src="https://unpkg.com/ml5@0.5.0/dist/ml5.min.js"></script>
   <script src="lib/p5.speech.js"></script>
-  <script src="lib/tf.min.js"></script>
-  <script src="lib/teachablemachine-pose.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
   <script src="lib/poseTrain.js"></script>  
   <style>
     body {
@@ -117,19 +117,19 @@
   		// add posenet
   		poseNet = ml5.poseNet(video, modelLoaded);
   		poseNet.on('pose', gotPoses);
-  		let options = {
-  			inputs: 34,
-  			outputs: 7,
-  			task: 'classification',
-  			debug: true
-  		}
+	    let options = {
+	      inputs: 34,
+	      outputs: 7,
+	      task: 'classification',
+	      debug: true
+	    }
 
   		brain = ml5.neuralNetwork(options);
   		const modelInfor = {
   			model: 'model/model.json',
     		metadata: 'model/model_meta.json',
-    		weights: 'model/weights.bin',
-  		}
+    		weights: 'model/model.weights.bin',
+  		};
   		brain.load(modelInfor, brainLoaded);
 
   	}
