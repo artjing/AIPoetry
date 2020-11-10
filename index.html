@@ -4,6 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=EB+Garamond" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+  <script src="lib/p5.speech.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -74,11 +75,34 @@
   </style>
   <script>
   	let video;
+  	var allSeeds = new Array();
+  	var currentPoetryString = "";
+  	
+  	// speech recognition
+  	var speechRec = new p5.SpeechRec('en-US',gotSpeech);
+  	speechRec.continuous = true;
+  	speechRec.interimResults = true;
+  	// text to speech
+  	speechVoice = new p5.Speech();
+  	speechVoice.setRate(0.8);
+  	let isSpeak = false;
+
   	function setup(){
   		var canvas = createCanvas(500,500);
   		canvas.parent('sketch-div');
   		video = createCapture(VIDEO);
+  		video.hide();
   		background(0);
+
+  		// speech
+  		speechRec.start();
+  		speechRec.onEnd = speechRecEnd;
+  		//speechVoice.onPause = speakPause;
+
+  		// add stop speak button
+  		speakStopbutton = createButton('Stop');
+  		speakStopbutton.position(430, 500);
+  		speakStopbutton.mousePressed(stopSpeak);
   	}
   	function draw(){
   		background(0,20);
@@ -86,12 +110,51 @@
   		image(video, width*0.25, height*0.25, width*0.5, (width * 0.5) * video.height / video.width);
   		ellipse(mouseX, mouseY,20,20);
   	}
-  </script>>
+
+  	// begin speak
+  	function gotSpeech(){
+  		var resultWord = speechRec.resultString.split(' ').pop();
+	  	if(allSeeds.length > 0){
+	  		if (allSeeds.indexOf(resultWord) >-1) { // change seed of poetry base on speech
+	  			poseChangeRegenerate(resultWord);
+	  		}else if(resultWord =='speech' && isSpeak == false){
+	  			//console.log(currentPoetryString);
+	  			isSpeak = true;
+	  			speechVoice.speak(currentPoetryString);
+	  			speechVoice.onEnd = speakEnd;
+	  		}else if(resultWord =='stop'){
+	  			speechVoice.stop()
+	  		}
+	  	}
+	  	console.log(speechRec.resultString.split(' ').pop());
+	}
+
+	// speak end
+	function speakEnd(){
+		isSpeak = false;
+		console.log("speechEnd================")
+	}
+	// speechRech end
+	function speechRecEnd(){
+		console.log("speechRecEnd===============")
+		speechRec.start();
+	}
+	// function speakPause(){
+	// 	console.log("speakPause===============")
+	// 	speechVoice.resume();
+	// }
+	function stopSpeak(){
+		speechVoice.pause();
+	}
+  </script>
 </head>
 
 <body>
   <p>
-  	This this the demo page of AI X Dance X Poetry
+  AI X Dance X Poetry
+  </p>
+  <p>
+  	Speech control / WebCam Movement control
   </p>
   <div id="main">
   <div id="sketch-div"></div>
@@ -125,11 +188,12 @@
     function update() {
       let key = selectPoems.value;
       let poem = poems[key];
-      // console.log(poem.url);
       poemElt.innerHTML = poem.poem.join('<br/>');
-
       let seed = selectSeeds.value;
       generatedElt.innerHTML = convertNewlines(generated[seed][key][index]) + '...';
+      currentPoetryString = generated[seed][key][index];
+
+
     }
 
     function randomSelect(elt) {
@@ -141,7 +205,6 @@
 
     // for python change poetry
     function poseChangeRegenerate(predicttype) {
-      console.log(predicttype)
       selectSeeds.value = predicttype;
       selectSeeds.onchange = update;
       regenerate()
@@ -188,9 +251,9 @@
           let opt = document.createElement("option");
           opt.text = key;
           opt.value = key;
+          allSeeds.push(key);
           selectSeeds.add(opt);
         }
-
         randomSelect(selectPoems);
         randomSelect(selectSeeds);
 
