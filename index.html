@@ -130,7 +130,7 @@
   		})
   		poseResult = pose
   		predictPoseResult = predictions[highIndex].className
-  		console.log(highProbability,predictPoseResult);
+  		//console.log(highProbability,predictPoseResult);
   	}
 
   	function setup(){
@@ -197,7 +197,7 @@
 	  			speechVoice.stop()
 	  		}
 	  	}
-	  	//console.log(speechRec.resultString.split(' ').pop());
+	  	console.log(speechRec.resultString.split(' ').pop());
 	}
 
 	// speak end
@@ -213,7 +213,8 @@
 
 	// stop speak 
 	function stopSpeak(){
-		speechVoice.pause();
+		isSpeak = false;
+	  	speechVoice.stop()
 	}
 
 	function stopMotion(){
